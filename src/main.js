@@ -2,10 +2,39 @@ import Vue from 'vue';
 import VueResource from 'vue-resource';
 import VueRouter from 'vue-router';
 import App from './App.vue';
+import VueNotifications from 'vue-notifications';
+import miniToastr from 'mini-toastr';
 import { routes } from './routes';
 
 Vue.use(VueResource);
 Vue.use(VueRouter);
+
+// If using mini-toastr, provide additional configuration
+const toastTypes = {
+    success: 'success',
+    error: 'error',
+    info: 'info',
+    warn: 'warn'
+}
+
+miniToastr.init({types: toastTypes})
+
+// Here we setup messages output to `mini-toastr`
+function toast ({title, message, type, timeout, cb}) {
+    return miniToastr[type](message, title, timeout, cb)
+}
+
+// Binding for methods .success(), .error() and etc. You can specify and map your own methods here.
+// Required to pipe our output to UI library (mini-toastr in example here)
+// All not-specified events (types) would be piped to output in console.
+const options = {
+    success: toast,
+    error: toast,
+    info: toast,
+    warn: toast
+}
+
+Vue.use(VueNotifications, options);
 
 // Configure Vue Router
 const router = new VueRouter({
@@ -14,7 +43,7 @@ const router = new VueRouter({
 });
 
 // Configure Vue Resource to my Google Firebase Database
-Vue.http.options.root = 'https://vuejs-http-d1017.firebaseio.com/';
+Vue.http.options.root = 'https://thaicom-fleet-management.firebaseio.com/';
 
 
 // Configure Vue Momentjs

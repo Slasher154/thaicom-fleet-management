@@ -7,9 +7,8 @@
             <a class="navbar-brand" href="#">Fleet Management</a>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav mr-auto">
-                    <router-link :to="{ name: 'dashboard'}" tag="li" class="nav-item" active-class="nav-item-active" exact><a>Home</a></router-link>
-                    <router-link :to="{ name: 'newCar'}" tag="li" class="nav-item" active-class="nav-item-active"><a>Car</a></router-link>
-                    <router-link :to="{ name: 'newDriver'}" tag="li" class="nav-item" active-class="nav-item-active"><a>Driver</a></router-link>
+                    <router-link :to="{ name: 'dashboard'}" tag="li" class="nav-item" active-class="active" exact><a class="nav-link">Home</a></router-link>
+                    <router-link :to="{ name: 'allDrivers'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">Driver</a></router-link>
 
 
 

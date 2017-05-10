@@ -9,12 +9,16 @@
 
 <script>
     import Header from './components/Header.vue';
+    import miniToastr from 'mini-toastr';
     export default {
         name: 'app',
 
         components: {
             appHeader: Header,
         },
+        mounted() {
+            miniToastr.init();
+        }
 
     }
 </script>
