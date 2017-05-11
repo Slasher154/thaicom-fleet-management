@@ -16,7 +16,7 @@
             </div>
             <div class="col-12 col-sm-6">
                 <app-vehicle-map
-                    :cars="cars"
+                        :cars="cars"
                 ></app-vehicle-map>
             </div>
         </div>
@@ -55,28 +55,43 @@
         },
         mounted() {
 
-            // Initialize random data for cars
-            let colors = [
-                'E74C3C',
-                '28B463',
-                '3498DB',
-                'F39C12'];
-            for (let i = 0; i < 4; i++) {
-                this.cars.push({
-                    id: i,
-                    name: '' + (320 + i),
-                    fuelLevel: 100 - Math.round(Math.random() * 10),
-                    temperature: 27 + (Math.round(Math.random() * 3 - 0.5)),
-                    speed: 100,
-                    position: {
-                        lat: 13.6 + Math.random() / 10,
-                        lng: 100.54 + Math.random() / 10,
-                    },
-                    speedLimit: this.speedLimit,
-                    latestUpdate: this.$moment().format('MMM D, YYYY HH:mm:ss'),
-                    color: colors[i % 4],
+            // Load the vehicles
+            this.$http.get('vehicles.json')
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    const resultArray = [];
+                    for (let key in data) {
+                        data[key].id = key;
+                        resultArray.push(data[key]);
+                    }
+                    // Initialize data for cars
+                    let colors = [
+                        'E74C3C',
+                        '28B463',
+                        '3498DB',
+                        'F39C12'];
+                    // Loop each car data from database and merge with some random data to display in dashboard (speed, position, etc.)
+                    for (let i = 0; i < resultArray.length; i++) {
+                        this.cars.push(Object.assign(
+                            resultArray[i], {
+                                fuelLevel: 100 - Math.round(Math.random() * 10),
+                                temperature: 27 + (Math.round(Math.random() * 3 - 0.5)),
+                                speed: 100,
+                                position: {
+                                    lat: 13.6 + Math.random() / 10,
+                                    lng: 100.54 + Math.random() / 10,
+                                },
+                                speedLimit: this.speedLimit,
+                                latestUpdate: this.$moment().format('MMM D, YYYY HH:mm:ss'),
+                                color: colors[i % 4],
+                            }));
+                    }
+
                 });
-            }
+
+
             // Assign the setInterval function to a component parameter so we can call clearInterval(this.simulateChanges) to
             // stop the value update when the component is destroyed
             this.simulateDataChanges = setInterval(() => {
@@ -99,6 +114,7 @@
         beforeDestroy() {
             // Stop the value updates when this component is destroyed, i.e. user navigates to other page
             clearInterval(this.simulateDataChanges);
-        }
+        },
+
     }
 </script>

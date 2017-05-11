@@ -5,17 +5,17 @@
                 <!--<h3 class="float-right">{{ speed }} km/h</h3>-->
                 <div class="row">
                     <!--<div class="col-8">-->
-                        <!--<h4 class="card-title">{{ name }}</h4>-->
-                        <!--<h6 class="card-subtitle mb-2 text-muted">{{ licensePlate }}</h6>-->
-                        <!--<span>Fuel Level: {{ fuelLevel }} %</span>-->
-                        <!--<span>Temperature: {{ temperature }} C</span>-->
+                    <!--<h4 class="card-title">{{ name }}</h4>-->
+                    <!--<h6 class="card-subtitle mb-2 text-muted">{{ licensePlate }}</h6>-->
+                    <!--<span>Fuel Level: {{ fuelLevel }} %</span>-->
+                    <!--<span>Temperature: {{ temperature }} C</span>-->
                     <!--</div>-->
                     <!--<div class="col-4 text-md-right">-->
-                        <!--<h2>100</h2>-->
-                        <!--<h6>km/h</h6>-->
+                    <!--<h2>100</h2>-->
+                    <!--<h6>km/h</h6>-->
                     <!--</div>-->
                     <div class="col-8">
-                        <h4 class="card-title car-name"><i class="fa fa-bus" aria-hidden="true"></i> Bus {{ car.name }}</h4>
+                        <h4 class="card-title" :style="{color: '#' + car.color}"><i class="fa fa-bus" aria-hidden="true"></i> {{ car.name }}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{{ car.licensePlate }}</h6>
                         <div>
                             <i class="fa fa-battery-full" aria-hidden="true"></i>
@@ -83,9 +83,6 @@
 <style>
     .card {
         cursor: pointer;
-    }
-    .car-name {
-        color: darkblue;
     }
     .car-speed-normal {
         color: green;

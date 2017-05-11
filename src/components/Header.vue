@@ -10,6 +10,8 @@
                     <router-link :to="{ name: 'dashboard'}" tag="li" class="nav-item" active-class="active" exact><a class="nav-link">Home</a></router-link>
                     <router-link :to="{ name: 'allDrivers'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">Driver</a></router-link>
                     <router-link :to="{ name: 'allVehicles'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">Vehicle</a></router-link>
+                    <router-link :to="{ name: 'allObdiiDevices'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">OBD-II</a></router-link>
+
 
                 </ul>
 

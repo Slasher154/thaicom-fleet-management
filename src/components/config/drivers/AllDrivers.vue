@@ -44,10 +44,12 @@
 <script>
     import Modal from '../../ConfirmationModal.vue';
     import VueNotifications from 'vue-notifications';
+    import DBCallMixin from '../../../mixins/retrieveDatabaseMixin';
     export default {
         components: {
             appModal: Modal,
         },
+        mixins: [DBCallMixin],
         data() {
             return {
                 drivers: [],
@@ -56,9 +58,6 @@
             };
         },
         methods: {
-            navigateToAddRouter() {
-                this.$router.push({ name: 'newDriver' });
-            },
             navigateToEdit(id) {
                 this.$router.push({ name: 'editDriver', params: { id: id }});
             },
@@ -93,19 +92,8 @@
           },
         },
         created() {
-             // Loaded the driveres
-            this.$http.get('drivers.json')
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    const resultArray = [];
-                    for (let key in data) {
-                        data[key].id = key;
-                        resultArray.push(data[key]);
-                    }
-                    this.drivers = resultArray;
-                });
+                // Call the method loadAllDrivers from the imported DBCall mixin
+                this.loadAllDrivers();
         }
     }
 </script>

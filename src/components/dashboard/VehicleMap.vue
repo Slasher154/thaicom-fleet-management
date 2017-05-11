@@ -94,16 +94,20 @@
 
                 },
                 deep: true,
-            }
+            },
+        },
+        created() {
+
         },
         mounted() {
-            // Fit bounds
-            this.$refs.example.fitBounds();
+            var vm = this;
+            setTimeout(function() {
+                vm.$refs.example.resizePreserveCenter();
+                console.log('hahahah');
+            }, 1000);
+
         },
         methods: {
-            pan() {
-                this.$refs.example.panBy(10, 10);
-            },
             updateChild(object, field, event) {
                 console.log('marker moved');
                 if (field === 'position') {

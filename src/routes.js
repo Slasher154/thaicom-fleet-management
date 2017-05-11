@@ -10,6 +10,9 @@ import DriverForm from './components/config/drivers/DriverForm.vue';
 import Vehicle from './components/config/vehicles/Vehicle.vue';
 import VehicleForm from './components/config/vehicles/VehicleForm.vue';
 import AllVehicles from './components/config/vehicles/AllVehicles.vue';
+import ObdiiDevice from './components/config/obdiiDevices/ObdiiDevice.vue';
+import ObdiiDeviceForm from './components/config/obdiiDevices/ObdiiDeviceForm.vue';
+import AllObdiiDevices from './components/config/obdiiDevices/AllObdiiDevices.vue';
 
 export const routes = [
     { path: '', name: 'dashboard', component: Dashboard },
@@ -22,6 +25,11 @@ export const routes = [
         { path: '', component: AllVehicles, name: 'allVehicles' },
         { path: 'add', component: VehicleForm, name: 'newVehicle'},
         { path: ':id/edit', component: VehicleForm, name: 'editVehicle', props: true },
+    ]},
+    { path: '/obdiiDevices', component: ObdiiDevice, children: [
+        { path: '', component: AllObdiiDevices, name: 'allObdiiDevices' },
+        { path: 'add', component: ObdiiDeviceForm, name: 'newObdiiDevice'},
+        { path: ':id/edit', component: ObdiiDeviceForm, name: 'editObdiiDevice', props: true },
     ]},
     { path: '*', redirect: { name: 'dashboard' }},
 ];

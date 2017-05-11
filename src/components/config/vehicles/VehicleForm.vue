@@ -31,7 +31,6 @@
                 <div class="form-group">
                     <label>Driver</label>
                     <select class="form-control" v-model="vehicle.driverId">
-
                         <option v-for="driver in drivers" :value="driver.id">{{ driver.title }} {{ driver.firstName }} {{ driver.lastName }}</option>
                     </select>
                 </div>
@@ -56,10 +55,12 @@
 <script>
     import Modal from '../../ConfirmationModal.vue';
     import VueNotifications from 'vue-notifications';
+    import DBCallMixin from '../../../mixins/retrieveDatabaseMixin';
     export default {
         components: {
             appModal: Modal,
         },
+        mixins: [DBCallMixin],
         props: {
             id: {
                 type: String
@@ -132,23 +133,7 @@
         },
         created() {
             // Load the driver options
-            this.$http.get('drivers.json')
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    const resultArray = [];
-                    for (let key in data) {
-                        data[key].id = key;
-                        resultArray.push(data[key]);
-                    }
-                    this.drivers = resultArray;
-
-                    // If this is add vehicle page, set default ID to the first item
-                    if(!this.isEdited) {
-                        this.vehicle.driverId = resultArray[0].id;
-                    }
-                });
+            this.loadAllDrivers();
 
             // If this form is loaded for edit vehicle page, fetch the driver with id from props passed via the URL from Firebase
             if(this.isEdited) {
@@ -162,7 +147,6 @@
                         this.currentVehicleName = `${data.name}`;
                     });
             }
-
-        }
+        },
     }
 </script>

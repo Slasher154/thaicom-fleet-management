@@ -42,10 +42,12 @@
 <script>
     import Modal from '../../ConfirmationModal.vue';
     import VueNotifications from 'vue-notifications';
+    import DBCallMixin from '../../../mixins/retrieveDatabaseMixin';
     export default {
         components: {
             appModal: Modal,
         },
+        mixins: [DBCallMixin],
         data() {
             return {
                 vehicles: [],
@@ -60,9 +62,6 @@
                     return driver.id === driverId;
                 });
                 return `${d.title} ${d.firstName} ${d.lastName}`;
-            },
-            navigateToAddRouter() {
-                this.$router.push({ name: 'newVehicle' });
             },
             navigateToEdit(id) {
                 this.$router.push({ name: 'editVehicle', params: { id: id }});
@@ -98,32 +97,10 @@
             },
         },
         created() {
-            // Load the vehicles
-            this.$http.get('vehicles.json')
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    const resultArray = [];
-                    for (let key in data) {
-                        data[key].id = key;
-                        resultArray.push(data[key]);
-                    }
-                    this.vehicles = resultArray;
-                });
-            // Load the drivers
-            this.$http.get('drivers.json')
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    const resultArray = [];
-                    for (let key in data) {
-                        data[key].id = key;
-                        resultArray.push(data[key]);
-                    }
-                    this.drivers = resultArray;
-                });
+            // Load the vehicles (called method inside mixin)
+            this.loadAllVehicles();
+            // Load the drivers (called method inside mixin)
+            this.loadAllDrivers();
         }
     }
 </script>
