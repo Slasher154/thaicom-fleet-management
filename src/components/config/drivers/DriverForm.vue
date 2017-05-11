@@ -10,15 +10,31 @@
                         <option v-for="title in titleOptions" :value="title">{{ title }}</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group"
+                     :class="{'has-danger': errors.has('firstName')}">
                     <label>First Name</label>
-                    <input class="form-control" type="text" v-model.trim="driver.firstName">
+                    <input
+                            v-validate="'required|alpha'"
+                            :class="{'form-control-danger': errors.has('firstName')}"
+                            class="form-control"
+                            type="text"
+                            name="firstName"
+                            v-model.trim="driver.firstName">
+                    <div v-if="errors.has('firstName')" class="form-control-feedback">{{ errors.first('firstName') }}</div>
                 </div>
-                <div class="form-group">
+                <div class="form-group"
+                     :class="{'has-danger': errors.has('lastName')}">
                     <label>Last Name</label>
-                    <input class="form-control" type="text" v-model.trim="driver.lastName">
+                    <input
+                            v-validate="'required|alpha'"
+                            class="form-control"
+                            :class="{'form-control-danger': errors.has('lastName')}"
+                            type="text"
+                            name="lastName"
+                            v-model.trim="driver.lastName">
+                    <div v-if="errors.has('lastName')" class="form-control-feedback">{{ errors.first('lastName') }}</div>
                 </div>
-                <button class="btn btn-primary" @click="readyToSubmit = true">Submit</button>
+                <button :disabled="errors.any()" class="btn btn-primary" @click="readyToSubmit = true">Submit</button>
             </div>
         </div>
 
@@ -50,9 +66,10 @@
             return {
                 driver: {
                     title: 'Mr',
-                    firstName: '',
-                    lastName: '',
+                    firstName: 'Name',
+                    lastName: 'Lastname',
                 },
+                currentFullName: '',
                 titleOptions: [
                     'Mr',
                     'Mrs',
@@ -69,7 +86,7 @@
             title() {
                 // If this is' add new driver' page, post the content to drivers.json
                 if (this.isEdited) {
-                    return `Edit driver:  ${this.fullName}`;
+                    return `Edit driver:  ${this.currentFullName}`;
                 }
                 return 'Add a driver';
             },
@@ -111,12 +128,14 @@
         created() {
             // If this form is loaded for edit driver page, fetch the driver with id from props passed via the URL from Firebase
             if(this.isEdited) {
+                var vm = this;
                 this.$http.get('drivers/' +  this.id + '.json')
                     .then(response => {
                         return response.json();
                     })
                     .then(data => {
                         this.driver = data;
+                        this.currentFullName = `${data.title} ${data.firstName} ${data.lastName}`;
                     });
             }
 

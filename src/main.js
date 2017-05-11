@@ -4,10 +4,12 @@ import VueRouter from 'vue-router';
 import App from './App.vue';
 import VueNotifications from 'vue-notifications';
 import miniToastr from 'mini-toastr';
+import VeeValdiate from 'vee-validate';
 import { routes } from './routes';
 
 Vue.use(VueResource);
 Vue.use(VueRouter);
+Vue.use(VeeValdiate);
 
 // If using mini-toastr, provide additional configuration
 const toastTypes = {
