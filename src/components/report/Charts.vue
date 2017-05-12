@@ -2,8 +2,8 @@
     <div>
         <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-12">
-                 <h5>Select Vehicles</h5>
-                 <v-select multiple v-model="selectedVehicles" :options="vehicleChoices">
+                <h5>Select Vehicles</h5>
+                <v-select multiple v-model="selectedVehicles" :options="vehicleChoices">
 
                 </v-select>
                 <br>
@@ -21,11 +21,28 @@
                 <div class="card">
                     <h3 class="card-header">Historical Speed Data</h3>
                     <div class="card-block">
-                        <h4 class="card-title">Select vehicles</h4>
-                        <div style="height: 500px" width="100%">
+                        <div style="height: 450px" width="100%">
                             <app-speed-chart
                                     :chartData="selectedSpeedData"
-                                    :options="chartOptions"
+                                    :options="speedChartOptions"
+                            ></app-speed-chart>
+                        </div>
+                        <!--<p class="card-text">With supporting text below as a natural lead-in to additional content.</p>-->
+                        <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <h3 class="card-header">Historical Fuel Level Data</h3>
+                    <div class="card-block">
+                        <div style="height: 450px" width="100%">
+                            <app-speed-chart
+                                    :chartData="selectedFuelData"
+                                    :options="fuelChartOptions"
                             ></app-speed-chart>
                         </div>
                         <!--<p class="card-text">With supporting text below as a natural lead-in to additional content.</p>-->
@@ -38,7 +55,7 @@
 </template>
 
 <script>
-    import Chart from './BarChart';
+    import Chart from './LineChart';
     import _ from 'lodash';
     import DBCallMixin from '../../mixins/retrieveDatabaseMixin';
     export default {
@@ -65,6 +82,10 @@
                                     'quarter': 'MMM DD HH:mm',
                                     'year': 'MMM DD HH:mm',
                                 }
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Time',
                             }
                         }],
                     },
@@ -76,6 +97,7 @@
                 selectedDay: 1,
                 days: [1, 3, 5, 7],
                 vehicleHistoricalSpeedData: [],
+                vehicleHistoricalFuelData: [],
             }
         },
         computed: {
@@ -114,7 +136,10 @@
                     datasets: chartData,
                 };
             },
-            dayChoices() {
+            selectedFuelData() {
+                return this.generateChartData(this.vehicleHistoricalFuelData);
+            },
+            dayChoices(){
                 return this.days.map((day) => {
                     return {
                         label: day + ' Days',
@@ -122,22 +147,94 @@
                     };
                 });
             },
-            vehicleChoices() {
+            vehicleChoices(){
                 return this.vehicles.map((v) => {
                     return {
                         label: v.name,
                         value: v.id,
                     };
                 });
+            },
+            fuelChartOptions() {
+                let chartOptions =_.cloneDeep(this.chartOptions);
+                chartOptions.scales.yAxes = [
+                    {
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Fuel Level (%)'
+                        }
+                    }
+                ];
+                return chartOptions;
+            },
+            speedChartOptions() {
+                let chartOptions = _.cloneDeep(this.chartOptions);
+                chartOptions.scales.yAxes = [
+                    {
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Speed (km/h)'
+                        }
+                    }
+                ];
+                chartOptions.annotation =  {
+                    annotations: [{
+                        type: 'line',
+                        mode: 'horizontal',
+                        scaleID: 'y-axis-0',
+                        value: 60,
+                        borderColor: 'green',
+                        borderWidth: 4,
+                        label: {
+                            enabled: false,
+                            content: 'Test label'
+                        }
+                    }]
+                };
+                return chartOptions;
             }
         },
         methods: {
-          addHours(hour) {
-              return this.$moment().add(hour, 'h');
-          },
-          randomBetweenTwoNumbers(min, max) {
-                return Math.floor(Math.random()*(max-min+1)+min);
-          },
+            generateChartData(data) {
+                // Create array of datasets filtered by selected vehicles
+                let vm = this;
+                let dataset = [];
+
+                // Create a clone data here to prevent the changes to original historical data since we just to filter
+                // from a set of data here
+                let clonedData = _.cloneDeep(data);
+
+
+                // Filter data by vehicle first
+                let selectedVehicleIds = _.map(this.selectedVehicles, 'value');
+                let vehicleFilteredData = _.filter(clonedData, (o) => {
+                    return _.indexOf(selectedVehicleIds, o.vehicleId) > -1;
+                });
+                // Remove the data points that is older than selected past day
+                let day = this.selectedDay;
+                vehicleFilteredData.forEach((d) => {
+                    d.dataPoints = _.filter(d.dataPoints, (p) => {
+                        return p.x > vm.$moment().add(-day, 'd');
+                    });
+                })
+                let chartData = vehicleFilteredData.map((d) => {
+                    return {
+                        label: d.vehicleName,
+                        data: d.dataPoints,
+                        fill: false,
+                        borderColor: '#' + d.color,
+                    };
+                });
+                return {
+                    datasets: chartData,
+                }
+            },
+            addHours(hour) {
+                return this.$moment().add(hour, 'h');
+            },
+            randomBetweenTwoNumbers(min, max) {
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            },
         },
         created() {
 
@@ -163,12 +260,8 @@
                             value: v.id,
                         });
                     });
-                    /*vm.selectedVehicles = this.vehicles.map((v) => {
-                        return v.id;
-                    })*/
 
                     // Generate sample data
-
                     let colors = [
                         'E74C3C',
                         '28B463',
@@ -179,10 +272,10 @@
 
                     this.vehicleHistoricalSpeedData = this.vehicles.map((v, index) => {
                         let dataPoints = [];
-                        let maxDays = vm.days.reduce((a,b) => Math.max(a,b));
+                        let maxDays = vm.days.reduce((a, b) => Math.max(a, b));
                         let hour = 0;
                         let currentSpeed = vm.randomBetweenTwoNumbers(90, 110);
-                        while(vm.addHours(hour) > vm.$moment().add(-maxDays, 'd')) {
+                        while (vm.addHours(hour) > vm.$moment().add(-maxDays, 'd')) {
                             dataPoints.push({
                                 x: vm.addHours(hour--),
                                 y: currentSpeed
@@ -196,6 +289,29 @@
                             dataPoints: dataPoints,
                         }
                     })
+
+                    // Fuel
+
+                    this.vehicleHistoricalFuelData = this.vehicles.map((v, index) => {
+                        let dataPoints = [];
+                        let maxDays = vm.days.reduce((a, b) => Math.max(a, b));
+                        let hour = 0;
+                        let currentFuel = vm.randomBetweenTwoNumbers(10, 20);
+                        while (vm.addHours(hour) > vm.$moment().add(-maxDays, 'd')) {
+                            dataPoints.push({
+                                x: vm.addHours(hour--),
+                                y: currentFuel
+                            });
+                            currentFuel += vm.randomBetweenTwoNumbers(0.1, 0.3);
+                        }
+                        return {
+                            vehicleId: v.id,
+                            vehicleName: v.name,
+                            color: colors[index % colors.length],
+                            dataPoints: dataPoints,
+                        }
+                    })
+
                 });
         }
     }
