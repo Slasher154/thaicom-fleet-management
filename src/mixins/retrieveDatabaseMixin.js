@@ -48,6 +48,15 @@ export default {
                     }
                     this.obdiiDevices = resultArray;
                 });
+        },
+        loadSystemConfig() {
+            this.$http.get('systemConfig.json')
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    this.systemConfig = data;
+                });
         }
     }
 }

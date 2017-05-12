@@ -29,8 +29,11 @@
 
                     </div>
                     <div class="col-4 text-md-right">
-                        <h2 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">{{ car.speed }}</h2>
-                        <h6 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">km/h</h6>
+                        <h2 v-if="car.speed == 0" style="color: orangered">Parked</h2>
+                        <template v-else>
+                            <h2 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">{{ car.speed }}</h2>
+                            <h6 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">km/h</h6>
+                        </template>
                     </div>
                 </div>
 

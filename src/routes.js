@@ -13,6 +13,8 @@ import AllVehicles from './components/config/vehicles/AllVehicles.vue';
 import ObdiiDevice from './components/config/obdiiDevices/ObdiiDevice.vue';
 import ObdiiDeviceForm from './components/config/obdiiDevices/ObdiiDeviceForm.vue';
 import AllObdiiDevices from './components/config/obdiiDevices/AllObdiiDevices.vue';
+import SystemConfig from './components/config/system/SystemConfig.vue';
+import Report from './components/report/Report.vue';
 
 export const routes = [
     { path: '', name: 'dashboard', component: Dashboard },
@@ -31,5 +33,7 @@ export const routes = [
         { path: 'add', component: ObdiiDeviceForm, name: 'newObdiiDevice'},
         { path: ':id/edit', component: ObdiiDeviceForm, name: 'editObdiiDevice', props: true },
     ]},
+    { path: '/config', component: SystemConfig, name: 'updateSystemConfig' },
+    { path: '/report', component: Report, name: 'viewReport' },
     { path: '*', redirect: { name: 'dashboard' }},
 ];

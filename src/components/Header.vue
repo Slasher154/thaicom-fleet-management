@@ -11,6 +11,10 @@
                     <router-link :to="{ name: 'allDrivers'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">Driver</a></router-link>
                     <router-link :to="{ name: 'allVehicles'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">Vehicle</a></router-link>
                     <router-link :to="{ name: 'allObdiiDevices'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">OBD-II</a></router-link>
+                    <router-link :to="{ name: 'updateSystemConfig'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">Config</a></router-link>
+                    <router-link :to="{ name: 'viewReport'}" tag="li" class="nav-item" active-class="active"><a class="nav-link">Report</a></router-link>
+
+
 
 
                 </ul>
