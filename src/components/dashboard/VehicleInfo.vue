@@ -34,6 +34,8 @@
                             <h2 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">{{ car.speed }}</h2>
                             <h6 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">km/h</h6>
                         </template>
+                        <button v-if="car.tracking" class="btn btn-small btn-danger" @click="toggleCarTracking">Tracking</button>
+                        <button v-else class="btn btn-small" @click="toggleCarTracking">Track</button>
                     </div>
                 </div>
 
@@ -79,14 +81,23 @@
             violateSpeedLimit() {
                 return this.car.speed > this.car.speedLimit;
             }
+        },
+        methods: {
+            toggleCarTracking() {
+                this.car.tracking = !this.car.tracking;
+
+                // Emit change to parent template by sending the tracking status and car ID back to template
+                this.$emit('trackingChanged', this.car.tracking, this.car.id);
+
+            }
         }
     }
 </script>
 
 <style>
-    .card {
+ /*   .card {
         cursor: pointer;
-    }
+    }*/
     .car-speed-normal {
         color: green;
     }
