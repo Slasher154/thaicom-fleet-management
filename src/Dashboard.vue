@@ -50,7 +50,7 @@
                 cars: [],
                 simulateDataChanges: '',
                 systemConfig: {},
-                carsToShow: 4,
+                carsToShow: 1,
             }
         },
         methods: {
@@ -154,7 +154,7 @@
 
                     // console.log('Updating car with ID = ' + car.id);
                 })
-            }, 1000);
+            }, 2000);
         },
         beforeDestroy() {
             // Stop the value updates when this component is destroyed, i.e. user navigates to other page

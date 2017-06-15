@@ -24,7 +24,7 @@
                     :position="marker.position"
                     :icon="{ url: marker.icon }"
                     :clickable="true"
-                    @click="toggleInfoWindow(marker, index)"
+                    @mouseover="toggleInfoWindow(marker, index)"
                 >
                 </gmap-marker>
 
