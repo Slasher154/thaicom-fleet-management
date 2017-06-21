@@ -25,6 +25,7 @@
                     :icon="{ url: marker.icon }"
                     :clickable="true"
                     @mouseover="toggleInfoWindow(marker, index)"
+                    @mouseout="toggleInfoWindow(marker, index)"
                 >
                 </gmap-marker>
 
@@ -77,59 +78,102 @@
                 handler: function(val, oldVal) {
                     for (let i = 0; i < val.length; i++) {
 
-                        // If car tracking status is True, pan the map to that car
-                        if (val[i].tracking) {
-                            this.$refs.example.panTo(new google.maps.LatLng(val[i].position.lat, val[i].position.lng));
-                        }
+                        //console.log('First val' + JSON.stringify(val[i]));
+                        // Check if there is already location data loaded
+                        if(val[i].data !== undefined) {
 
-                        //console.log(`position changed from ${oldVal[i].position.lat},${oldVal[i].position.lng} to ${val[i].position.lat},${val[i].position.lng}`);
-                        // Push coordinates to route array to extend the car route
-                        // Find the car index
-
-                        let routeExist = false;
-                        for (let j = 0; j < this.routes.length; j++) {
-                            if (val[i].id === this.routes[j].id) {
-                                //console.log('Route found!! for ID = ' + val[i].id);
-                                //console.log('Pushing ' + val[i].position.lat + ' ,' + val[i].position.lng + ' to this route');
-
-                                // Update route and add waypoint only if the position is updated
-                                let previousLocation = this.routes[j].path[this.routes[j].path.length - 1];
-                                if (previousLocation.lat !== val[i].position.lat || previousLocation.lng !== val[i].position.lng) {
-
-                                    this.routes[j].path.push({ lat: val[i].position.lat, lng: val[i].position.lng });
-                                    this.routes[j].timestamp.push(val[i].latestUpdate);
-                                    routeExist = true;
-
-                                    // Add waypoint marker to an array. The marker coordinates will be at marker's previous position (like leaving a trail)
-                                    this.wayPointMarkers.push({
-                                        id: val[i].id,
-                                        //position: { lat: oldVal[i].position.lat, lng: oldVal[i].position.lng },
-                                        position: { lat: previousLocation.lat, lng: previousLocation.lng },
-                                        icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.25|0|' + val[i].color + '|12|_|',
-                                        timestamp: this.routes[j].timestamp[this.routes[j].timestamp.length -2 ],
-                                        color: val[i].color,
-                                        carName: val[i].name,
-                                    });
-                                }
-
-
+                            // If car tracking status is True, pan the map to that car
+                            if (val[i].tracking) {
+                                this.$refs.example.panTo(new google.maps.LatLng(val[i].position.lat, val[i].position.lng));
                             }
-                        }
-                        if(!routeExist) {
-                            let obj = {
-                                id: val[i].id,
-                                carName: val[i].name,
-                                path: [{ lat: val[i].position.lat, lng: val[i].position.lng }],
-                                color: val[i].color,
-                                timestamp: [val[i].latestUpdate],
-                            };
-                            console.log('Route does not exist yet');
-                            console.log('Push ' + JSON.stringify(obj));
-                            this.routes.push(obj);
-                        }
+
+                            // Check if there's already a route object for this car
+                            let routeIndex = this.routes.findIndex(r => r.id === val[i].id);
+                            if (routeIndex >= 0) {
+
+                                // Convert the latest point of this route into a waypoint
+                                let currentPosition = this.routes[routeIndex].path[this.routes[routeIndex].path.length-1];
+                                let currentTimestamp = this.routes[routeIndex].timestamp[this.routes[routeIndex].timestamp.length-1];
+                                this.wayPointMarkers.push({
+                                    id: val[i].id,
+                                    position: { lat: currentPosition.lat, lng: currentPosition.lng },
+                                    icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.25|0|' + val[i].color + '|12|_|',
+                                    timestamp: currentTimestamp,
+                                    color: val[i].color,
+                                    carName: val[i].name,
+                                });
+
+                                // Push a new point to the route
+                                this.routes[routeIndex].path.push({ lat: val[i].position.lat, lng: val[i].position.lng });
+                                this.routes[routeIndex].timestamp.push(val[i].timestamp);
+
+                            } else {
+                                // Create a new route object for this car
+                                let obj = {
+                                    id: val[i].id,
+                                    carName: val[i].name,
+                                    path: [{ lat: val[i].position.lat, lng: val[i].position.lng }],
+                                    color: val[i].color,
+                                    timestamp: [val[i].timestamp],
+                                };
+                                console.log(`Creating new route object for car : ${obj.carName}`);
+                                this.routes.push(obj);
+                            }
+
+
+
+                            //console.log(`position changed from ${oldVal[i].position.lat},${oldVal[i].position.lng} to ${val[i].position.lat},${val[i].position.lng}`);
+                            // Push coordinates to route array to extend the car route
+                            // Find the car index
+
+                            /*
+                            let routeExist = false;
+                            for (let j = 0; j < this.routes.length; j++) {
+                                if (val[i].id === this.routes[j].id) {
+                                    //console.log('Route found!! for ID = ' + val[i].id);
+                                    //console.log('Pushing ' + val[i].position.lat + ' ,' + val[i].position.lng + ' to this route');
+
+                                    // Update route and add waypoint only if the position is updated
+                                    let previousLocation = this.routes[j].path[this.routes[j].path.length - 1];
+                                    if (previousLocation.lat !== val[i].position.lat || previousLocation.lng !== val[i].position.lng) {
+
+                                        this.routes[j].path.push({ lat: val[i].position.lat, lng: val[i].position.lng });
+                                        this.routes[j].timestamp.push(val[i].latestUpdate);
+                                        routeExist = true;
+
+                                        // Add waypoint marker to an array. The marker coordinates will be at marker's previous position (like leaving a trail)
+                                        this.wayPointMarkers.push({
+                                            id: val[i].id,
+                                            //position: { lat: oldVal[i].position.lat, lng: oldVal[i].position.lng },
+                                            position: { lat: previousLocation.lat, lng: previousLocation.lng },
+                                            icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.25|0|' + val[i].color + '|12|_|',
+                                            timestamp: this.routes[j].timestamp[this.routes[j].timestamp.length -2 ],
+                                            color: val[i].color,
+                                            carName: val[i].name,
+                                        });
+                                    }
+
+
+                                }
+                            }
+                            if(!routeExist) {
+                                let obj = {
+                                    id: val[i].id,
+                                    carName: val[i].name,
+                                    path: [{ lat: val[i].position.lat, lng: val[i].position.lng }],
+                                    color: val[i].color,
+                                    timestamp: [val[i].latestUpdate],
+                                };
+                                console.log('Route does not exist yet');
+                                console.log('Push ' + JSON.stringify(obj));
+                                this.routes.push(obj);
+                            }
+                            */
+
+
 //                        console.log('Find ' + JSON.stringify(carRoute));
-                        //let carRoute = _.where(this.routes, { id: val[i].id });
-                        // If the route with this car ID is already in the array, push the new car position to its route
+                            //let carRoute = _.where(this.routes, { id: val[i].id });
+                            // If the route with this car ID is already in the array, push the new car position to its route
 //                        if (carRoute) {
 //                            //console.log('Updating route for car ' + val[i].id);
 //                            carRoute.path.push({ lat: val[i].position.lat, lng: val[i].position.lng });
@@ -147,6 +191,7 @@
 //                                path: [{ lat: val[i].lat, lng: val[i].lng }],
 //                            });
 //                        }
+                        }
                     }
 
                 },
@@ -198,7 +243,7 @@
                 this.infoWindowPos = marker.position;
                 this.infoContent = `<div style="color: #${marker.color}">`
                 this.infoContent += '<h4>' + marker.carName + '</h4>';
-                this.infoContent += '<strong>Visited: ' + marker.timestamp + '</strong>';
+                this.infoContent += '<strong>Visited: ' + this.$moment(marker.timestamp).format('MMM D, YYYY HH:mm:ss') + '</strong>';
                 this.infoContent += '</div>';
                 //check if its the same marker that was selected if yes toggle
                 if (this.currentMidx == idx) {

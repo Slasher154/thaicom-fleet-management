@@ -24,15 +24,15 @@
                             <span>{{ car.temperature }} C</span>
                         </div>
                         <div>
-                            <strong>Latest Update:</strong> {{ car.latestUpdate }}
+                            <strong>Timestamp:</strong> {{ formatTimestamp(car.timestamp) }}
                         </div>
 
                     </div>
                     <div class="col-4 text-md-right">
                         <h2 v-if="car.speed == 0" style="color: orangered">Parked</h2>
                         <template v-else>
-                            <h2 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">{{ car.speed }}</h2>
-                            <h6 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">km/h</h6>
+                            <h2 :class="violateSpeedLimit ? 'car-speed-violate' : 'car-speed-normal'">{{ car.speed }} km/h</h2>
+                            <h6>Limit: {{car.speedLimit}} km/h</h6>
                         </template>
                         <button v-if="car.tracking" class="btn btn-small btn-danger" @click="toggleCarTracking">Tracking</button>
                         <button v-else class="btn btn-small" @click="toggleCarTracking">Track</button>
@@ -89,6 +89,9 @@
                 // Emit change to parent template by sending the tracking status and car ID back to template
                 this.$emit('trackingChanged', this.car.tracking, this.car.id);
 
+            },
+            formatTimestamp(timestamp) {
+                return this.$moment(timestamp).format('MMM D, YYYY HH:mm:ss');
             }
         }
     }
