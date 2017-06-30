@@ -62,12 +62,13 @@
         data() {
             return {
                 tripsToShow: 3,
-                tripOptions: [3, 10],
+                tripOptions: [3, 10, 20],
                 vehicles: [],
                 trips: [],
                 routes: [],
                 markers: [],
                 selectedVehicleId: '',
+                markersInterval: 5,
                 queryUrl: 'http://ubuntu@ec2-54-255-197-138.ap-southeast-1.compute.amazonaws.com',
             }
         },
@@ -103,11 +104,25 @@
                               this.trips = [];
                           }
                           else {
-                              let returnedTrips = data.msg[0].data[0];
+                              let returnedTrips = data.msg[0].data;
+                              console.log(JSON.stringify(returnedTrips));
                               let trips = [];
                               // The returned result from API uses trip name as a key
                               let count = 0;
-                              for (let key in returnedTrips) {
+                              returnedTrips.forEach((trip) => {
+                                  for (let key in trip) {
+                                      trips.push({
+                                          name: key,
+                                          index: count++,
+                                          startTime: +trip[key][0],
+                                          stopTime: +trip[key][1],
+                                          formattedStartTime: this.formatTimestamp(+trip[key][0]),
+                                          formattedStopTime: this.formatTimestamp(+trip[key][1]),
+                                          selected: false,
+                                      })
+                                  }
+                              })
+                             /* for (let key in returnedTrips) {
                                   trips.push({
                                       name: key,
                                       index: count++,
@@ -117,7 +132,7 @@
                                       formattedStopTime: this.formatTimestamp(+returnedTrips[key][1]),
                                       selected: false,
                                   });
-                              }
+                              }*/
                               console.log(JSON.stringify(trips));
                               trips.sort((a,b) => b.startTime - a.startTime);
                               this.trips = trips;
@@ -136,6 +151,7 @@
               let vidQueryString = `vid=${this.selectedVehicleId}`;
               let propertiesQueryString = `properties=location,speed`;
               let timeQueryString = `start=${t.startTime}&stop=${t.stopTime}`;
+              console.log(`Fetching: ${this.queryUrl}/query?${vidQueryString}&${propertiesQueryString}&${timeQueryString}`);
               this.$http.get(`${this.queryUrl}/query?${vidQueryString}&${propertiesQueryString}&${timeQueryString}`)
                   .then(response => {
                       return response.json();
@@ -143,11 +159,17 @@
                       alert('There is an error fetching trip data from the server.');
                   })
                   .then(data => {
+
+                      // clear the old routes and markers
+                      this.routes = [];
+                      this.markers = [];
+
                       let route = {
                           color: 'E74C3C',
                           path: [],
                           name: t.name,
                       };
+                      let markers = [];
                       // Filter invalid GPS data out and sort by timestamp
                       let tripData = data.msg.find(m => m.vid === this.selectedVehicleId).data
                           .filter(d => !(d.GPS_LAT == "0.0" && d.GPS_LONG === "0.0"))
@@ -158,16 +180,21 @@
                           route.path.push({
                               lat: +td.GPS_LAT,
                               lng: +td.GPS_LONG
-                          })
-                          this.markers.push({
+                          });
+                          markers.push({
                               position: {
                                   lat: +td.GPS_LAT,
                                   lng: +td.GPS_LONG
                               },
+                              carName: t.name,
                               timestamp: td.tstamp
                           });
                       })
                       this.routes.push(route);
+                      // Filter to show every 5th marker
+                      this.markers = markers.filter((val, index) => {
+                          return (index % this.markersInterval == 0);
+                      });
                       console.log('Routes = ' + JSON.stringify(this.routes));
                       console.log('Markers = ' + JSON.stringify(this.markers));
 

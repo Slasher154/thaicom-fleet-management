@@ -24,6 +24,9 @@
                             <span>{{ car.temperature }} C</span>
                         </div>
                         <div>
+                            <strong>Driving Score: </strong> {{ car.score }}
+                        </div>
+                        <div>
                             <strong>Timestamp:</strong> {{ formatTimestamp(car.timestamp) }}
                         </div>
 

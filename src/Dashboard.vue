@@ -150,13 +150,13 @@
                             }
                         ))
                     }
-                    let startTime = 1497513600000;
-                    let stopTime = 1497517200000;
+                    //let startTime = 1498628162079;
+                    let startTime = 1498628272000;
+                    let stopTime =  1498628672074;
                     let vidQueryString = `vid=${this.cars.map(car => car.vid).join(',')}`;
-                    let propertiesQueryString = `properties=location,speed`;
+                    let propertiesQueryString = `properties=speed,rpm,location,gspeed,score`;
                     let timeQueryString = `start=${startTime}&stop=${stopTime}`;
-                    let url = `http://ubuntu@ec2-54-255-197-138.ap-southeast-1.compute.amazonaws.com/query/?${vidQueryString}&${propertiesQueryString}&${timeQueryString}`;
-
+                    let url = `http://ubuntu@ec2-54-255-197-138.ap-southeast-1.compute.amazonaws.com/query?${vidQueryString}&${propertiesQueryString}&${timeQueryString}`;
                     this.$http.get(url)
                     //this.$http.get('http://ubuntu@ec2-54-255-197-138.ap-southeast-1.compute.amazonaws.com')
                         .then(response => {
@@ -185,6 +185,10 @@
                                     lng: +car.data[0].GPS_LONG,
                                 };
 
+                                // Set the speed and score
+                                car.speed = car.data[0].SpeedSensor;
+                                car.score = car.data[0].Score;
+
                                 // Set the timestamp
                                 car.timestamp = car.data[0].tstamp;
                             })
@@ -193,7 +197,8 @@
                             // stop the value update when the component is destroyed
                             this.simulateDataChanges = setInterval(() => {
                                 this.cars.forEach((car) => {
-                                    // Change speed
+
+                                    // Update speed
                                     // let speedChange = this.randomBetweenTwoNumbers(-2, 2);
                                     car.speed = car.data[car.currentPositionIndex].SpeedSensor;
 
@@ -201,6 +206,9 @@
                                     if(car.speed < 0) {
                                         car.speed = 0;
                                     }
+
+                                    // Update score
+                                    car.score = car.data[car.currentPositionIndex].Score;
 
                                     // Change speed limit
                                     // car.speedLimit = this.systemConfig.speedLimit;

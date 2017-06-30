@@ -29,6 +29,18 @@
                 >
                 </gmap-marker>
 
+                <gmap-marker v-if="markers.length > 0"
+                    :position="startMarker.position"
+                    :icon="{ url: startMarkerIconUrl }"
+                    :zIndex="999"
+                ></gmap-marker>
+
+                <gmap-marker v-if="markers.length > 0"
+                        :position="stopMarker.position"
+                        :icon="{ url: stopMarkerIconUrl }"
+                         :zIndex="999"
+                ></gmap-marker>
+
                 <gmap-polyline
                         v-for="(route, index) in routes"
                         :key="index"
@@ -57,6 +69,8 @@
                     lng: 0
                 },
                 markerIconUrl: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.25|0|E74C3C|12|_|',
+                startMarkerIconUrl: 'https://chart.googleapis.com/chart?chst=d_bubble_text_small&chld=bbT|Start|F39C12|000000',
+                stopMarkerIconUrl: 'https://chart.googleapis.com/chart?chst=d_bubble_text_small&chld=bbT|Stop|F39C12|000000',
                 infoWinOpen: false,
                 currentMidx: null,
                 //optional: offset infowindow so it visually sits nicely on top of our marker
@@ -66,10 +80,55 @@
                         height: -10
                     }
                 },
+                startMarker: {
+                    position: {
+                        lat: 0,
+                        lng: 0,
+                    }
+                },
+                stopMarker: {
+                    position: {
+                        lat: 0,
+                        lng: 0,
+                    }
+                }
             }
         },
         computed: {
 
+        },
+        watch: {
+            markers: {
+                handler: function(val, oldVal) {
+                    console.log('Markers changed!!!!');
+
+                    if (val.length === 0) {
+                        alert('Cannot query the route for this trip.');
+                    }
+
+                    else {
+                        // Set the position of start and stop marker to show the start/stop points on map
+                        this.startMarker.position = {
+                            lat: val[0].position.lat,
+                            lng: val[0].position.lng
+                        };
+                        this.stopMarker.position = {
+                            lat: val[val.length-1].position.lat,
+                            lng: val[val.length-1].position.lng,
+                        };
+
+                        // Create a LatLngBounds to cover all markers so we can automatically pan to the our route
+                        var bounds = new google.maps.LatLngBounds();
+                        val.forEach(m => {
+                            bounds.extend(new google.maps.LatLng(m.position.lat, m.position.lng));
+                        })
+                        this.$refs.tripMap.fitBounds(bounds);
+
+                    }
+
+                },
+                deep: true,
+            }
         },
         created() {
 
