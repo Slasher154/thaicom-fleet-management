@@ -4,13 +4,13 @@ import VueRouter from 'vue-router';
 import App from './App.vue';
 import VueNotifications from 'vue-notifications';
 import miniToastr from 'mini-toastr';
-import VeeValdiate from 'vee-validate';
+import VeeValidate from 'vee-validate';
 import vSelect from 'vue-select';
 import { routes } from './routes';
 
 Vue.use(VueResource);
 Vue.use(VueRouter);
-Vue.use(VeeValdiate);
+Vue.use(VeeValidate);
 Vue.component('v-select', vSelect);
 
 // If using mini-toastr, provide additional configuration
