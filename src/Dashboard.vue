@@ -51,7 +51,7 @@
                 simulateDataChanges: '',
                 refreshSpeedLimit: '',
                 systemConfig: {},
-                carsToShow: 1,
+                carsToShow: 3,
                 simulateChangeDurationInSeconds: 0.5,
                 refreshSpeedLimitRateInSeconds: 5,
 
